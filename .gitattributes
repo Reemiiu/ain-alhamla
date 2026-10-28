@@ -1,0 +1,3 @@
+# Built Flutter web output — exclude from GitHub language stats
+website/app/** linguist-generated=true
+*.sql linguist-language=PLpgSQL
