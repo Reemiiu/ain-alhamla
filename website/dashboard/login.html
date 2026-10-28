@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تسجيل الدخول — عين الحملة</title>
+<link rel="icon" href="../assets/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<div class="login-shell">
+  <div class="login-brand">
+    <svg class="login-brand-rings" width="620" height="620" viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="98" fill="none" stroke="#C9A24A" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="76" fill="none" stroke="#C9A24A" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="54" fill="none" stroke="#C9A24A" stroke-width="1.5"/>
+    </svg>
+    <img class="logo" src="../assets/logo.jpg" alt="شعار عين الحملة">
+    <div class="login-brand-text">
+      <div class="title">عين الحملة</div>
+      <div class="desc">منظومة ذكية تتابع حضور أفراد الحملة وتحميهم من الانفصال.. حضورهم تحت نظرك في كل لحظة</div>
+      <div class="login-roles">
+        <span><b>الحاج</b> يُفتح له تطبيق الحاج: الحضور، الخريطة، SOS</span>
+        <span><b>المشرف</b> مجموعته، التجمعات والحضور، الاستجابة</span>
+        <span><b>الإدارة</b> سجل الشغل، التعليقات، تقرير بعد كل منسك</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-form-panel">
+    <form class="login-form" id="loginForm" novalidate>
+      <div>
+        <h1>تسجيل الدخول</h1>
+        <p class="subtitle">دخول واحد للحجاج والمشرفين والإدارة، وتُفتح لك واجهة دورك تلقائياً</p>
+      </div>
+
+      <div id="formError" class="form-error" hidden></div>
+
+      <div>
+        <label class="field-label" for="nationalId">رقم الهوية</label>
+        <input class="field" id="nationalId" name="nationalId" type="text" inputmode="numeric" placeholder="١٠٢٣٤٥٦٧٨٩" autocomplete="username" required>
+      </div>
+      <div>
+        <label class="field-label" for="password">كلمة المرور</label>
+        <input class="field" id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required>
+      </div>
+
+      <div class="login-remember">
+        <label><input type="checkbox" id="remember"> تذكرني على هذا الجهاز</label>
+      </div>
+
+      <button class="btn btn-primary" type="submit" id="submitBtn" style="width:100%; padding:14px;">دخول</button>
+
+      <div class="demo-box">
+        <div class="demo-title">حسابات تجريبية (كلمة المرور Demo@1234)</div>
+        <div class="demo-list">
+          <button type="button" data-demo="1030303030">حاج</button>
+          <button type="button" data-demo="2040404040">حاج إندونيسي</button>
+          <button type="button" data-demo="1010101010">الإدارة</button>
+          <button type="button" data-demo="1010101011">مركز العمليات</button>
+          <button type="button" data-demo="1020202020">مشرف الفوج الأول</button>
+          <button type="button" data-demo="1020202021">مشرف الفوج الثاني</button>
+        </div>
+      </div>
+
+      <p class="login-footer-note">على الجوال، المشرف يُفتح له التطبيق الميداني · <a href="../">الصفحة التعريفية</a></p>
+    </form>
+  </div>
+</div>
+
+<script type="module" src="js/login.js"></script>
+</body>
+</html>

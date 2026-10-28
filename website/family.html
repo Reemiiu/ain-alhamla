@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>طمأنينة الأهل — عين الحملة</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Amiri:wght@400;700&display=swap">
+<style>
+  :root { --green:#12332A; --gold:#C9A24A; --bg:#FAF7EF; --surface:#fff; --line:#E4DCC8; --text:#1E1B16; --muted:#5B564C; --ok:#3F7A57; --warn:#B5761E; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Tajawal', Tahoma, sans-serif; line-height: 1.7; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 24px max(16px, env(safe-area-inset-left)) 48px max(16px, env(safe-area-inset-right)); display: flex; flex-direction: column; gap: 14px; }
+  .top { display: flex; align-items: center; gap: 12px; }
+  .top img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: #000; }
+  .top b { font-family: 'Amiri', serif; font-size: 1.35rem; display: block; line-height: 1.2; }
+  .top small { color: var(--muted); }
+  .hero { background: var(--green); color: #F4EEDC; border-radius: 16px; padding: 22px; position: relative; overflow: hidden; }
+  .hero::after { content: ""; position: absolute; inset-inline-start: -50px; bottom: -60px; width: 170px; height: 170px; border-radius: 50%; border: 22px solid rgba(201,162,74,.16); }
+  .state { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+  .state::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: currentColor; }
+  .state.ok { color: #9FE0B9; } .state.follow { color: #F2C27A; }
+  .hero h1 { font-family: 'Amiri', serif; font-size: 2rem; margin: 4px 0; color: #fff; line-height: 1.2; position: relative; z-index: 1; }
+  .hero p { margin: 0; color: #CFE0D6; position: relative; z-index: 1; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .card h2 { margin: 0 0 10px; font-size: 1rem; }
+  .tl { list-style: none; margin: 0; padding: 0; }
+  .tl li { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; padding-bottom: 12px; position: relative; }
+  .tl li::before { content: ""; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); margin-top: 5px; z-index: 1; }
+  .tl li::after { content: ""; position: absolute; inset-inline-start: 7px; top: 19px; bottom: 0; width: 2px; background: var(--line); }
+  .tl li:last-child::after { display: none; }
+  .tl li.COMPLETED::before { background: var(--ok); border-color: var(--ok); }
+  .tl li.IN_PROGRESS::before { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 0 4px rgba(201,162,74,.25); }
+  .tl small { color: var(--muted); }
+  .msg { font-family: 'Amiri', serif; font-size: 1.1rem; border-inline-start: 3px solid var(--gold); padding-inline-start: 12px; }
+  .note { font-size: .82rem; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+<main class="wrap" id="app"><div class="card">جارٍ التحميل...</div></main>
+<script type="module">
+  import { supabase } from './dashboard/js/supabase-client.js';
+  const app = document.getElementById('app');
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const ago = (iso) => { if (!iso) return 'غير معروف'; const m = Math.floor((Date.now() - new Date(iso)) / 60000); return m < 1 ? 'الآن' : m < 60 ? `قبل ${m} دقيقة` : m < 1440 ? `قبل ${Math.floor(m / 60)} ساعة` : new Date(iso).toLocaleDateString('ar-SA'); };
+  const top = `<div class="top"><img src="assets/logo.jpg" alt=""><div><b>عين الحملة</b><small>متابعة الأهل</small></div></div>`;
+  const token = new URLSearchParams(location.search).get('t');
+  (async () => {
+    if (!token) { app.innerHTML = top + '<div class="card"><h2>الرابط غير مكتمل</h2>اطلب من الحملة رابط المتابعة الخاص بحاجكم.</div>'; return; }
+    const { data, error } = await supabase.rpc('family_view', { p_link: token });
+    if (error || !data?.valid) { app.innerHTML = top + '<div class="card"><h2>انتهت صلاحية هذا الرابط</h2>أوقفت الحملة هذا الرابط أو انتهت مدته. تواصل مع الحملة للحصول على رابط جديد.</div>'; return; }
+    const follow = data.status !== 'OK';
+    app.innerHTML = top + `
+      <section class="hero">
+        <span class="state ${follow ? 'follow' : 'ok'}">${follow ? 'المشرف يتابع وضعه الآن' : 'بخير ومع فوجه'}</span>
+        <h1>${esc(data.name)}</h1>
+        <p>${follow ? 'ابتعد عن فوجه قليلًا، ومشرف الحملة على تواصل معه.' : `آخر تحديث ${ago(data.last_update)} · ${esc(data.group ?? '')}`}</p>
+      </section>
+      <section class="card"><h2>رحلة المناسك</h2><ol class="tl">${(data.rituals ?? []).map((r) => `<li class="${r.status}"><b>${esc(r.name)}</b><small>${r.status === 'COMPLETED' ? 'أتمّه' : r.status === 'IN_PROGRESS' ? 'الآن' : ''}</small></li>`).join('')}</ol></section>
+      ${data.message ? `<section class="card"><h2>رسالة من الحملة</h2><div class="msg">${esc(data.message.body)}</div><small style="color:var(--muted)">${ago(data.message.at)}</small></section>` : ''}
+      <p class="note">لا تعرض هذه الصفحة الموقع الدقيق لحاجكم حفاظًا على خصوصيته وسلامته. الرابط صالح حتى ${new Date(data.expires_at).toLocaleDateString('ar-SA')}.</p>`;
+  })();
+</script>
+</body>
+</html>

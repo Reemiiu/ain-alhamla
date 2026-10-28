@@ -1,0 +1,621 @@
+// عين الحملة — schema.dbml (v4) — 38 جدولاً، مولَّد من القاعدة نفسها بعد ملفات database/01 → 13
+// v2 = أُضيف في الإصدار الثاني · v3 = المتابعة الذكية · v4 = مميزات الحج
+// الصقيه في https://dbdiagram.io
+
+Enum alert_severity {
+  LOW
+  MEDIUM
+  CRITICAL
+}
+
+Enum alert_status {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+Enum alert_type {
+  ABSENCE
+  DELAY
+  GEOFENCE_BREACH
+  SOS
+  LOST
+  LOW_BATTERY
+  HEAT_STRESS
+  BUDDY_SPLIT
+  OUTSIDE_SITE
+  MISSED_DOSE
+  NO_MOVEMENT
+}
+
+Enum attendance_source {
+  APP_CHECKIN
+  GPS
+  MANUAL
+}
+
+Enum attendance_status {
+  PRESENT
+  LATE
+  ABSENT
+  OUT_OF_RANGE
+}
+
+Enum campaign_status {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+}
+
+Enum comment_kind {
+  SUPERVISOR_NOTE
+  ADMIN_REPLY
+  PILGRIM_FEEDBACK
+}
+
+Enum counter_kind {
+  TAWAF
+  SAI
+  JAMRAH_SUGHRA
+  JAMRAH_WUSTA
+  JAMRAH_AQABA
+}
+
+Enum dose_status {
+  DUE
+  TAKEN
+  MISSED
+  SKIPPED
+}
+
+Enum gathering_status {
+  SCHEDULED
+  OPEN
+  CLOSED
+}
+
+Enum location_type {
+  CHECKPOINT
+  SAFE_ZONE
+}
+
+Enum lost_category {
+  PASSPORT
+  PHONE
+  GLASSES
+  BAG
+  MONEY
+  OTHER
+}
+
+Enum lost_status {
+  OPEN
+  FOUND
+  RETURNED
+}
+
+Enum notification_channel {
+  PUSH
+  SMS
+  IN_APP
+}
+
+Enum priority_level {
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+Enum ritual_status {
+  UPCOMING
+  IN_PROGRESS
+  COMPLETED
+}
+
+Enum site_key {
+  ARAFAH
+  MUZDALIFAH
+  MINA
+}
+
+Enum sos_status {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+}
+
+Enum trip_status {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+}
+
+Enum user_role {
+  ADMIN
+  SUPERVISOR
+  PILGRIM
+  OPERATIONS_CENTER
+}
+
+Enum wellness_status {
+  SENT
+  ANSWERED_OK
+  HELP
+  ESCALATED
+  SUPPRESSED
+}
+
+Table activity_log {  // v2
+  id bigint [pk, increment]
+  actor_id bigint [ref: > users.id]
+  action varchar(40) [not null]
+  entity varchar(30)
+  entity_id bigint
+  group_id bigint [ref: > groups.id]
+  description text [not null]
+  created_at timestamptz [not null]
+}
+
+Table alerts {
+  id bigint [pk, increment]
+  pilgrim_id bigint [ref: > pilgrims.id]
+  location_id bigint [ref: > locations.id]
+  type alert_type [not null]
+  severity alert_severity [not null]
+  status alert_status [not null]
+  resolved_by bigint [ref: > users.id]
+  created_at timestamptz [not null]
+  resolved_at timestamptz
+  gathering_id bigint [ref: > gatherings.id]
+  ritual_id bigint [ref: > rituals.id]
+  latitude numeric(9,6)
+  longitude numeric(9,6)
+  note text
+  escalated_at timestamptz
+  meeting_point_id bigint [ref: > meeting_points.id]  // v3
+}
+
+Table app_sessions {  // v2
+  token uuid [pk]
+  user_id bigint [not null, ref: > users.id]
+  created_at timestamptz [not null]
+  expires_at timestamptz [not null]
+  last_seen_at timestamptz [not null]
+}
+
+Table attendance {
+  id bigint [pk, increment]
+  pilgrim_id bigint [not null, ref: > pilgrims.id]
+  location_id bigint [ref: > locations.id]
+  checkpoint_time timestamptz [not null]
+  status attendance_status [not null]
+  source attendance_source [not null]
+  gathering_id bigint [ref: > gatherings.id]
+  distance_m int
+  recorded_by bigint [ref: > users.id]
+  client_recorded_at timestamptz
+  synced_at timestamptz [not null]
+}
+
+Table broadcasts {  // v2
+  id bigint [pk, increment]
+  campaign_id bigint [not null, ref: > campaigns.id]
+  group_id bigint [ref: > groups.id]
+  sender_id bigint [not null, ref: > users.id]
+  title varchar(150) [not null]
+  body text [not null]
+  is_urgent boolean [not null]
+  created_at timestamptz [not null]
+}
+
+Table buddy_pairs {  // v3
+  id bigint [pk, increment]
+  pilgrim_a_id bigint [not null, ref: > pilgrims.id]
+  pilgrim_b_id bigint [not null, ref: > pilgrims.id]
+  max_distance_m int [not null]
+  created_by bigint [ref: > users.id]
+  created_at timestamptz [not null]
+}
+
+Table campaigns {
+  id bigint [pk, increment]
+  name varchar(200) [not null]
+  license_no varchar(50) [unique, not null]
+  start_date date [not null]
+  end_date date [not null]
+  admin_id bigint [ref: > users.id]
+  status campaign_status [not null]
+}
+
+Table comments {  // v2
+  id bigint [pk, increment]
+  author_id bigint [not null, ref: > users.id]
+  kind comment_kind [not null]
+  ritual_id bigint [ref: > rituals.id]
+  group_id bigint [ref: > groups.id]
+  pilgrim_id bigint [ref: > pilgrims.id]
+  alert_id bigint [ref: > alerts.id]
+  parent_id bigint [ref: > comments.id]
+  rating smallint
+  body text [not null]
+  created_at timestamptz [not null]
+  read_at timestamptz
+}
+
+Table crowd_forecasts {  // v3
+  id bigint [pk, increment]
+  location_id bigint [not null, ref: > locations.id]
+  slot_start timestamptz [not null]
+  slot_minutes smallint [not null]
+  density numeric(3,1) [not null]
+}
+
+Table emergency_contacts {
+  id bigint [pk, increment]
+  pilgrim_id bigint [not null, ref: > pilgrims.id]
+  name varchar(150) [not null]
+  relation varchar(50)
+  phone varchar(20) [not null]
+  is_primary boolean [not null]
+}
+
+Table family_links {  // v4
+  id bigint [pk, increment]
+  pilgrim_id bigint [not null, ref: > pilgrims.id]
+  contact_id bigint [ref: > emergency_contacts.id]
+  token uuid [unique, not null]
+  expires_at timestamptz [not null]
+  is_active boolean [not null]
+  views int [not null]
+  last_viewed timestamptz
+  created_by bigint [ref: > users.id]
+  created_at timestamptz [not null]
+}
+
+Table gatherings {  // v2
+  id bigint [pk, increment]
+  campaign_id bigint [not null, ref: > campaigns.id]
+  group_id bigint [not null, ref: > groups.id]
+  ritual_id bigint [ref: > rituals.id]
+  trip_id bigint [ref: > trips.id]
+  location_id bigint [not null, ref: > locations.id]
+  title varchar(150) [not null]
+  scheduled_at timestamptz [not null]
+  deadline_minutes int [not null]
+  status gathering_status [not null]
+  created_by bigint [ref: > users.id]
+  created_at timestamptz [not null]
+  closed_at timestamptz
+}
+
+Table groups {
+  id bigint [pk, increment]
+  campaign_id bigint [not null, ref: > campaigns.id]
+  name varchar(150) [not null]
+  supervisor_id bigint [ref: > supervisors.id]
+  capacity int [not null]
+}
+
+Table heat_readings {  // v3
+  id bigint [pk, increment]
+  location_id bigint [not null, ref: > locations.id]
+  temperature_c numeric(4,1) [not null]
+  humidity_pct smallint [not null]
+  recorded_at timestamptz [not null]
+}
+
+Table location_pings {  // v2
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  latitude numeric(9,6) [not null]
+  longitude numeric(9,6) [not null]
+  accuracy_m int
+  battery_pct smallint
+  client_recorded_at timestamptz [not null]
+  synced_at timestamptz [not null]
+}
+
+Table locations {
+  id bigint [pk, increment]
+  campaign_id bigint [ref: > campaigns.id]
+  name varchar(150) [not null]
+  type location_type [not null]
+  latitude numeric(9,6) [not null]
+  longitude numeric(9,6) [not null]
+  radius_meters int [not null]
+}
+
+Table lost_items {  // v4
+  id bigint [pk, increment]
+  campaign_id bigint [not null, ref: > campaigns.id]
+  reporter_id bigint [not null, ref: > users.id]
+  owner_pilgrim_id bigint [ref: > pilgrims.id]
+  category lost_category [not null]
+  description varchar(300) [not null]
+  last_seen_place varchar(150)
+  status lost_status [not null]
+  is_urgent boolean [not null]
+  found_by bigint [ref: > users.id]
+  found_at timestamptz
+  returned_at timestamptz
+  created_at timestamptz [not null]
+}
+
+Table medication_doses {  // v4
+  id bigint [pk, increment]
+  medication_id bigint [not null, ref: > medications.id]
+  scheduled_at timestamptz [not null]
+  status dose_status [not null]
+  taken_at timestamptz
+  confirmed_by bigint [ref: > users.id]
+}
+
+Table medications {  // v4
+  id bigint [pk, increment]
+  pilgrim_id bigint [not null, ref: > pilgrims.id]
+  name varchar(120) [not null]
+  condition varchar(80)
+  schedule_times "time[]" [not null]
+  needs_fridge boolean [not null]
+  is_active boolean [not null]
+  created_at timestamptz [not null]
+}
+
+Table meeting_points {  // v3
+  id bigint [pk, increment]
+  campaign_id bigint [not null, ref: > campaigns.id]
+  name varchar(150) [not null]
+  latitude numeric(9,6) [not null]
+  longitude numeric(9,6) [not null]
+  is_open boolean [not null]
+  landmark varchar(200)
+  created_at timestamptz [not null]
+}
+
+Table notifications {
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  alert_id bigint [ref: > alerts.id]
+  channel notification_channel [not null]
+  sent_at timestamptz [not null]
+  read_at timestamptz
+  broadcast_id bigint [ref: > broadcasts.id]
+  title varchar(150)
+  body text
+}
+
+Table pilgrims {
+  id bigint [pk, increment]
+  user_id bigint [unique, not null, ref: > users.id]
+  campaign_id bigint [ref: > campaigns.id]
+  group_id bigint [ref: > groups.id]
+  passport_no varchar(30)
+  blood_type varchar(5)
+  medical_notes text
+  created_at timestamptz [not null]
+  birth_date date
+  nationality varchar(60)
+  preferred_language varchar(5) [not null]
+  large_text boolean [not null]
+  priority_level priority_level [not null]
+  priority_reason varchar(150)
+  priority_manual boolean [not null]
+  allergies text  // v4
+}
+
+Table prep_progress {  // v4
+  pilgrim_id bigint [pk, ref: > pilgrims.id]
+  task_id bigint [pk, ref: > prep_tasks.id]
+  done_at timestamptz [not null]
+}
+
+Table prep_tasks {  // v4
+  id bigint [pk, increment]
+  campaign_id bigint [not null, ref: > campaigns.id]
+  key varchar(30) [not null]
+  name varchar(150) [not null]
+  seq smallint [not null]
+}
+
+Table ritual_counters {  // v4
+  id bigint [pk, increment]
+  pilgrim_id bigint [not null, ref: > pilgrims.id]
+  kind counter_kind [not null]
+  hajj_day smallint [not null]
+  count smallint [not null]
+  updated_at timestamptz [not null]
+}
+
+Table ritual_guides {  // v4
+  id bigint [pk, increment]
+  hajj_day smallint [not null]
+  lang varchar(5) [not null]
+  title varchar(100) [not null]
+  steps jsonb [not null]
+  dua text
+  tip text
+}
+
+Table ritual_reports {  // v2
+  id bigint [pk, increment]
+  ritual_id bigint [not null, ref: > rituals.id]
+  group_id bigint [not null, ref: > groups.id]
+  total_count int [not null]
+  present_count int [not null]
+  late_count int [not null]
+  absent_count int [not null]
+  out_of_range_count int [not null]
+  alerts_count int [not null]
+  sos_count int [not null]
+  avg_response_min numeric(6,1)
+  avg_rating numeric(3,2)
+  supervisor_comment text
+  summary jsonb [not null]
+  created_by bigint [ref: > users.id]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table rituals {  // v2
+  id bigint [pk, increment]
+  campaign_id bigint [not null, ref: > campaigns.id]
+  name varchar(120) [not null]
+  hajj_day smallint [not null]
+  seq smallint [not null]
+  location_id bigint [ref: > locations.id]
+  starts_at timestamptz [not null]
+  ends_at timestamptz [not null]
+  status ritual_status [not null]
+}
+
+Table sacred_sites {  // v4
+  id bigint [pk, increment]
+  campaign_id bigint [ref: > campaigns.id]
+  key site_key [not null]
+  name varchar(100) [not null]
+  boundary jsonb [not null]
+  is_active boolean [not null]
+  note text
+}
+
+Table sos_requests {
+  id bigint [pk, increment]
+  alert_id bigint [unique, ref: > alerts.id]
+  pilgrim_id bigint [not null, ref: > pilgrims.id]
+  latitude numeric(9,6)
+  longitude numeric(9,6)
+  responder_id bigint [ref: > users.id]
+  status sos_status [not null]
+  triggered_at timestamptz [not null]
+  resolved_at timestamptz
+  acknowledged_at timestamptz
+}
+
+Table supervisors {
+  id bigint [pk, increment]
+  user_id bigint [unique, not null, ref: > users.id]
+  campaign_id bigint [ref: > campaigns.id]
+  job_title varchar(150)
+  created_at timestamptz [not null]
+}
+
+Table trip_groups {
+  trip_id bigint [pk, ref: > trips.id]
+  group_id bigint [pk, ref: > groups.id]
+}
+
+Table trips {
+  id bigint [pk, increment]
+  vehicle_no varchar(30) [not null]
+  driver_name varchar(150) [not null]
+  route_from_id bigint [ref: > locations.id]
+  route_to_id bigint [ref: > locations.id]
+  departure_time timestamptz
+  arrival_time timestamptz
+  status trip_status [not null]
+}
+
+Table users {
+  id bigint [pk, increment]
+  full_name varchar(150) [not null]
+  national_id varchar(20) [unique, not null]
+  phone varchar(20) [not null]
+  password_hash text [not null]
+  role user_role [not null]
+  is_active boolean [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table voice_message_receipts {  // v4
+  voice_id bigint [pk, ref: > voice_messages.id]
+  pilgrim_id bigint [pk, ref: > pilgrims.id]
+  heard_at timestamptz [not null]
+}
+
+Table voice_message_translations {  // v4
+  voice_id bigint [pk, ref: > voice_messages.id]
+  lang varchar(5) [pk]
+  text text [not null]
+}
+
+Table voice_messages {  // v4
+  id bigint [pk, increment]
+  broadcast_id bigint [ref: > broadcasts.id]
+  sender_id bigint [not null, ref: > users.id]
+  group_id bigint [ref: > groups.id]
+  audio_url text
+  duration_sec smallint
+  transcript_ar text [not null]
+  is_urgent boolean [not null]
+  created_at timestamptz [not null]
+}
+
+Table wellness_checks {  // v4
+  id bigint [pk, increment]
+  pilgrim_id bigint [not null, ref: > pilgrims.id]
+  still_minutes int [not null]
+  latitude numeric(9,6)
+  longitude numeric(9,6)
+  status wellness_status [not null]
+  sent_at timestamptz [not null]
+  answered_at timestamptz
+  alert_id bigint [ref: > alerts.id]
+}
+
+TableGroup "Identity" {
+  users
+  pilgrims
+  supervisors
+  emergency_contacts
+  app_sessions
+}
+TableGroup "Campaign & Rituals" {
+  campaigns
+  groups
+  rituals
+  locations
+  gatherings
+  attendance
+}
+TableGroup "Tracking & Transport" {
+  location_pings
+  trips
+  trip_groups
+}
+TableGroup "Safety & Communication" {
+  alerts
+  sos_requests
+  notifications
+  broadcasts
+}
+TableGroup "Oversight & Reports" {
+  ritual_reports
+  comments
+  activity_log
+}
+TableGroup "Smart Monitoring v3" {
+  buddy_pairs
+  meeting_points
+  heat_readings
+  crowd_forecasts
+}
+TableGroup "Sites & Health v4" {
+  sacred_sites
+  medications
+  medication_doses
+  wellness_checks
+}
+TableGroup "Family & Messages v4" {
+  family_links
+  voice_messages
+  voice_message_translations
+  voice_message_receipts
+}
+TableGroup "Operations v4" {
+  lost_items
+  prep_tasks
+  prep_progress
+  ritual_counters
+  ritual_guides
+}

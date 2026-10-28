@@ -1,0 +1,55 @@
+name: ain_alhamla
+description: "عين الحملة — تطبيق الحاج لمتابعة الحضور والتنقلات والسلامة داخل حملة الحج"
+publish_to: "none"
+version: 2.1.0+3
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # الاتصال بقاعدة البيانات الحية (Supabase / PostgreSQL) — نفس قاعدة عين الحملة
+  supabase_flutter: ^2.6.0
+
+  # إدارة الحالة (المستخدم الحالي، الحملة، المجموعة...)
+  provider: ^6.1.2
+
+  # خط Tajawal (نفس خط تصاميم التطبيق والموقع) — يُحمَّل من Google Fonts
+  google_fonts: ">=6.2.1 <8.0.0"
+
+  # تهيئة التاريخ/الوقت بالعربية
+  intl: any
+
+  # موقع GPS الفعلي للحاج (التتبع، الحضور، SOS، أنا تائه)
+  geolocator: ^13.0.1
+
+  # v2: حفظ الجلسة واللغة وطابور عدم الاتصال (ضعف الشبكة في المشاعر)
+  shared_preferences: ^2.3.0
+
+  # v2: الاتصال الهاتفي بالمشرف وجهات الطوارئ، وفتح الاتجاهات في الخرائط
+  url_launcher: ^6.3.0
+
+  # v2: نسبة بطارية الجوال لتنبيه المشرف قبل انقطاع التتبع
+  battery_plus: ">=6.0.0 <8.0.0"
+
+  # v2.1: خريطة داخل التطبيق تعمل بدون إنترنت (صور الخريطة تُحفظ على الجوال)
+  flutter_map: ^8.3.2
+  latlong2: ^0.9.1
+  http: ^1.5.0
+  path_provider: ^2.1.5
+  web: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ">=4.0.0 <7.0.0"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.jpg

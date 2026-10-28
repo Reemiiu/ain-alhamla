@@ -1,0 +1,37 @@
+{
+    "name": "عين الحملة",
+    "short_name": "عين الحملة",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#FAF7EF",
+    "theme_color": "#12332A",
+    "description": "تطبيق الحاج: الحضور والتجمعات والخريطة وطلب النجدة — يعمل بدون إنترنت",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "lang": "ar",
+    "dir": "rtl"
+}
