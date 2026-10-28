@@ -126,7 +126,7 @@ The heart of the project is a carefully modelled PostgreSQL database, evolved ov
 ├── database/      SQL migrations 01→13, schema.dbml, ER diagrams (PDF + erd/)
 ├── flutter_app/   Flutter app for pilgrims & supervisors (Android + Web)
 ├── website/       Landing page, dashboard/, and the built web app (app/) — Netlify-ready
-└── docs/          Presentation, project card, traceability matrix, links guide
+└── docs/          Presentation, project card, traceability matrix, screenshots
 ```
 
 ## 🚀 Getting Started
