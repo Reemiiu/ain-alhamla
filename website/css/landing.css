@@ -222,6 +222,10 @@
   /* screens */
   .screens-grid{display:grid; grid-template-columns:.72fr 1.28fr; gap:36px; align-items:start; margin-top:44px}
   .device-caption{margin-top:16px; text-align:center; font-size:.86rem; color:var(--text-faint)}
+  .real-shot{margin:0}
+  .real-shot img{display:block; width:100%; height:auto; border-radius:18px; border:1px solid var(--line); box-shadow:0 18px 40px rgba(18,51,42,.14); background:#fff}
+  .phone-shot{max-width:320px; margin-inline:auto}
+  .phone-shot img{border-radius:28px; border:6px solid #12332A}
 
   .phone{
     width:100%; max-width:300px; margin-inline:auto; background:var(--band-bg); border-radius:34px;

@@ -21,31 +21,34 @@ function ritualTimeline(rituals) {
 
 // =============================== الإدارة ===============================
 async function adminHome({ content, user }) {
+  const ops = user.role === 'OPERATIONS_CENTER';
   setSubtitle(user.role === 'OPERATIONS_CENTER' ? 'مركز العمليات — صورة لحظية عن الحملة' : 'صورة لحظية عن الحملة كاملة');
   content.innerHTML = `
     <div class="stat-row" id="kpis"></div>
-    <div class="card"><div class="card-head"><h2>مسار المناسك</h2><a href="reports.html" class="link">التقارير ←</a></div><div id="rituals"></div></div>
+    <div class="card"><div class="card-head"><h2>مسار المناسك</h2>${ops ? '' : '<a href="reports.html" class="link">التقارير ←</a>'}</div><div id="rituals"></div></div>
     <div class="row">
       <div class="card" style="flex:1.6"><div class="card-head"><h2>الخريطة الحية</h2><a href="map.html" class="link">الحجم الكامل ←</a></div><div id="miniMap"></div></div>
       <div class="card" style="flex:1"><div class="card-head"><h2>طابور الاستجابة</h2><a href="alerts.html" class="link">الكل ←</a></div><div id="queue"></div></div>
     </div>
     <div class="row">
       <div class="card" style="flex:1"><div class="card-head"><h2>جاهزية المجموعات</h2></div><div id="groups"></div></div>
+      ${ops ? `<div class="card" style="flex:2.4"><div class="card-head"><h2>الأعلى خطر ضياع الآن</h2><a href="smart.html" class="link">المتابعة الذكية ←</a></div><div id="risk"></div></div>` : `
       <div class="card" style="flex:1.2"><div class="card-head"><h2>آخر شغل المشرفين</h2><a href="activity.html" class="link">سجل الشغل ←</a></div><div id="activity"></div></div>
-      <div class="card" style="flex:1.2"><div class="card-head"><h2>آخر التعليقات</h2><a href="comments.html" class="link">الكل ←</a></div><div id="comments"></div></div>
+      <div class="card" style="flex:1.2"><div class="card-head"><h2>آخر التعليقات</h2><a href="comments.html" class="link">الكل ←</a></div><div id="comments"></div></div>`}
     </div>`;
   let map;
   createLiveMap(document.getElementById('miniMap'), { height: 320 }).then((m) => { map = m; });
   const load = async () => {
-    const [k, rit, q, act, com, board] = await Promise.all([
+    const [k, rit, q, act, com, board, risk] = await Promise.all([
       rpc('app_kpis'),
       supabase.from('rituals').select('id, name, hajj_day, status, seq').order('seq'),
       supabase.from('alerts').select('id, type, severity, status, created_at, escalated_at, pilgrims(priority_level, users(full_name), groups(name))')
         .neq('status', 'RESOLVED').order('created_at', { ascending: false }).limit(30),
-      supabase.from('activity_log').select('id, description, created_at, users(full_name)').neq('action', 'LOGIN').order('created_at', { ascending: false }).limit(7),
-      supabase.from('comments').select('id, kind, body, rating, created_at, users(full_name), rituals(name), groups(name)')
+      ops ? { data: [] } : supabase.from('activity_log').select('id, description, created_at, users(full_name)').neq('action', 'LOGIN').order('created_at', { ascending: false }).limit(7),
+      ops ? { data: [] } : supabase.from('comments').select('id, kind, body, rating, created_at, users(full_name), rituals(name), groups(name)')
         .order('created_at', { ascending: false }).limit(5),
       rpc('app_board'),
+      ops ? rpc('app_members_risk') : [],
     ]);
     document.getElementById('kpis').innerHTML =
       kpi('الحجاج', num(k.pilgrims), `${num(k.high_priority)} أولوية عالية · ${num(k.non_arabic)} غير ناطق بالعربية`) +
@@ -69,6 +72,13 @@ async function adminHome({ content, user }) {
         ${gt ? `<div class="ready-bar"><i style="width:${pct}%"></i></div><span class="ready-pct ${pct === 100 ? 'ok' : ''}">${pct}٪</span>`
               : '<span class="meta">لا يوجد تجمع مفتوح</span>'}</div>`;
     }).join('');
+    if (ops) {
+      document.getElementById('risk').innerHTML = risk.slice(0, 6).map((r) => `
+        <a class="alert-row" href="smart.html"><span class="dot" style="background:${r.risk.score >= 60 ? 'var(--danger)' : r.risk.score >= 30 ? 'var(--warning)' : 'var(--success)'}"></span>
+          <div><b>${esc(r.full_name)} — ${r.risk.score}</b><span class="meta">${esc(r.group_name ?? '')} · ${r.risk.distance_m != null ? r.risk.distance_m + ' م عن الفوج' : 'لا موقع'} · ${r.risk.seen_min != null ? 'قبل ' + r.risk.seen_min + ' د' : '—'}</span></div></a>`).join('')
+        || '<div class="empty-state">لا يوجد حجاج.</div>';
+      return;
+    }
     document.getElementById('activity').innerHTML = (act.data ?? []).map((a) => `
       <div class="feed-row"><span class="feed-av">${esc(initials(a.users?.full_name))}</span>
         <div><b>${esc(a.users?.full_name ?? 'النظام')}</b> ${esc(a.description)}<span class="meta">${timeAgo(a.created_at)}</span></div></div>`).join('')

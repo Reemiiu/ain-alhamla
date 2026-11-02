@@ -3,7 +3,7 @@ import { supabase, rpc } from '../api.js';
 import { renderShell, onTick } from '../shell.js';
 import { esc, initials, openModal, toast } from '../ui.js';
 
-const shell = renderShell({ page: 'groups.html', title: 'المجموعات والمشرفون', subtitle: 'توزيع الحجاج على الأفواج والمشرف المسؤول عن كل فوج', roles: ['ADMIN', 'OPERATIONS_CENTER'] });
+const shell = renderShell({ page: 'groups.html', title: 'المجموعات والمشرفون', subtitle: 'توزيع الحجاج على الأفواج والمشرف المسؤول عن كل فوج', roles: ['ADMIN'] });
 let board, sups = [];
 
 if (shell) init(shell);

@@ -3,7 +3,7 @@ import { supabase, rpc } from '../api.js';
 import { renderShell, isAdmin, onTick } from '../shell.js';
 import { esc, timeAgo, stars, initials, openModal, toast } from '../ui.js';
 
-const shell = renderShell({ page: 'comments.html', title: 'التعليقات', subtitle: 'ملاحظات المشرفين وتقييمات الحجاج وردود الإدارة' });
+const shell = renderShell({ page: 'comments.html', title: 'التعليقات', subtitle: 'ملاحظات المشرفين وتقييمات الحجاج وردود الإدارة' , roles: ['ADMIN', 'SUPERVISOR'] });
 let all = [], tab = 'notes', ritualF = 'ALL', groups = [], rituals = [], user;
 
 if (shell) init(shell);

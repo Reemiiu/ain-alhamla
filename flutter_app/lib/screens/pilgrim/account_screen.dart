@@ -5,6 +5,7 @@ import '../../l10n/strings.dart';
 import '../../providers/session_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common.dart';
+import 'circle_screen.dart';
 import 'contacts_screen.dart';
 import 'medical_card_screen.dart';
 import 'phrasebook_screen.dart';
@@ -80,6 +81,7 @@ class AccountScreen extends StatelessWidget {
       ),
       const SizedBox(height: 12),
       _tile(context, Icons.medical_information_rounded, s.t('medical_card'), const MedicalCardScreen()),
+      _tile(context, Icons.diversity_3_rounded, s.t('circle_title'), const CircleScreen()),
       _tile(context, Icons.contact_phone_rounded, s.t('emergency_contacts'), const ContactsScreen()),
       _tile(context, Icons.record_voice_over_rounded, s.t('phrases'), const PhrasebookScreen()),
       const SizedBox(height: 8),

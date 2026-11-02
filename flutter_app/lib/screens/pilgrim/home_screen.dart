@@ -10,6 +10,7 @@ import '../../services/location_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/sos_button.dart';
+import 'circle_screen.dart';
 import 'contacts_screen.dart';
 import 'guide_screen.dart';
 import 'hajj_screen.dart';
@@ -140,6 +141,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Center(child: SosButton(onLost: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuideScreen())))),
               const SizedBox(height: 22),
               const HajjEntryCard(),
+              const SizedBox(height: 12),
+              const CircleEntryCard(),
               const SizedBox(height: 12),
               Row(children: [
                 _Quick(icon: Icons.medical_information_rounded, label: s.t('medical_card'),

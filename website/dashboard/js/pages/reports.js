@@ -3,7 +3,7 @@ import { supabase, rpc } from '../api.js';
 import { renderShell, isAdmin } from '../shell.js';
 import { esc, dateTime, timeAgo, stars, openModal, toast, downloadCsv, PRIORITY, ATT } from '../ui.js';
 
-const shell = renderShell({ page: 'reports.html', title: 'تقارير المناسك', subtitle: 'تقرير يصدر بعد كل منسك لكل مجموعة' });
+const shell = renderShell({ page: 'reports.html', title: 'تقارير المناسك', subtitle: 'تقرير يصدر بعد كل منسك لكل مجموعة' , roles: ['ADMIN', 'SUPERVISOR'] });
 let rituals = [], groups = [], reports = [], user;
 
 if (shell) init(shell);

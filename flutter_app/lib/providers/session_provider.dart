@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 
 import '../l10n/strings.dart';
 import '../services/api.dart';
+import '../services/circle_store.dart';
 import '../services/geo.dart';
 import '../services/location_service.dart';
 import '../services/map_cache.dart';
@@ -166,6 +167,7 @@ class SessionProvider extends ChangeNotifier {
     OfflineTiles.cancel();
     await MapCache.clear();
     await Api.prefs.remove('ain_me');
+    await CircleStore.clear();
     mapData = null;
     myLat = null;
     myLng = null;

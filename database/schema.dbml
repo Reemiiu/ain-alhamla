@@ -1,5 +1,5 @@
-// عين الحملة — schema.dbml (v4) — 38 جدولاً، مولَّد من القاعدة نفسها بعد ملفات database/01 → 13
-// v2 = أُضيف في الإصدار الثاني · v3 = المتابعة الذكية · v4 = مميزات الحج
+// عين الحملة — schema.dbml (v4.5) — 40 جدولاً، مولَّد من القاعدة نفسها بعد ملفات database/01 → 14
+// v2 = أُضيف في الإصدار الثاني · v3 = المتابعة الذكية · v4 = مميزات الحج · v4.5 = دوائر الرفقة «عائلتي ورفقتي»
 // الصقيه في https://dbdiagram.io
 
 Enum alert_severity {
@@ -227,6 +227,13 @@ Table campaigns {
   status campaign_status [not null]
 }
 
+Table circle_members {  // v4.5 — كل حاج في دائرة واحدة فقط (فهرس فريد على pilgrim_id)
+  circle_id bigint [pk, ref: > companion_circles.id]
+  pilgrim_id bigint [pk, ref: > pilgrims.id]
+  is_owner boolean [not null]
+  joined_at timestamptz [not null]
+}
+
 Table comments {  // v2
   id bigint [pk, increment]
   author_id bigint [not null, ref: > users.id]
@@ -240,6 +247,16 @@ Table comments {  // v2
   body text [not null]
   created_at timestamptz [not null]
   read_at timestamptz
+}
+
+Table companion_circles {  // v4.5
+  id bigint [pk, increment]
+  campaign_id bigint [not null, ref: > campaigns.id]
+  name varchar(60) [not null]
+  join_code char(6) [unique, not null]
+  max_distance_m int [not null]
+  created_by bigint [ref: > users.id]
+  created_at timestamptz [not null]
 }
 
 Table crowd_forecasts {  // v3
@@ -618,4 +635,8 @@ TableGroup "Operations v4" {
   prep_progress
   ritual_counters
   ritual_guides
+}
+TableGroup "Companion Circles v4.5" {
+  companion_circles
+  circle_members
 }

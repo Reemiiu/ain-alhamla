@@ -3,7 +3,7 @@ import { supabase, rpc } from '../api.js';
 import { renderShell, onTick, isAdmin } from '../shell.js';
 import { esc, dateTime, openModal, toast, toLocalInput } from '../ui.js';
 
-const shell = renderShell({ page: 'trips.html', title: 'التنقلات', subtitle: 'رحلات الحافلات بين المشاعر' });
+const shell = renderShell({ page: 'trips.html', title: 'التنقلات', subtitle: 'رحلات الحافلات بين المشاعر' , roles: ['ADMIN', 'SUPERVISOR'] });
 let trips = [], locations = [], groups = [];
 const ST = { SCHEDULED: ['مجدولة', 'muted'], IN_PROGRESS: ['في الطريق', 'warn'], COMPLETED: ['وصلت', 'good'] };
 

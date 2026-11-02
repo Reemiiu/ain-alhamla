@@ -3,7 +3,7 @@ import { supabase } from '../api.js';
 import { renderShell, onTick } from '../shell.js';
 import { esc, clock, timeAgo, initials, downloadCsv } from '../ui.js';
 
-const shell = renderShell({ page: 'activity.html', title: 'سجل الشغل', subtitle: 'كل ما نفّذه المشرفون في الميدان — لحظة بلحظة', roles: ['ADMIN', 'OPERATIONS_CENTER'] });
+const shell = renderShell({ page: 'activity.html', title: 'سجل الشغل', subtitle: 'كل ما نفّذه المشرفون في الميدان — لحظة بلحظة', roles: ['ADMIN'] });
 
 const ACTIONS = {
   CREATE_GATHERING: ['فتح تجمع', '📍'], CLOSE_GATHERING: ['إغلاق تجمع', '✅'], MANUAL_ATTENDANCE: ['حضور يدوي', '✍️'],

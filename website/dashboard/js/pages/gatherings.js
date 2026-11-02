@@ -3,7 +3,7 @@ import { supabase, rpc } from '../api.js';
 import { renderShell, onTick } from '../shell.js';
 import { esc, clock, dateTime, timeAgo, attPill, prioPill, openModal, toast, toLocalInput, initials, LANG } from '../ui.js';
 
-const shell = renderShell({ page: 'gatherings.html', title: 'التجمعات والحضور', subtitle: 'افتح تجمعاً بموعد ومهلة، وتابع من وصل لحظة بلحظة' });
+const shell = renderShell({ page: 'gatherings.html', title: 'التجمعات والحضور', subtitle: 'افتح تجمعاً بموعد ومهلة، وتابع من وصل لحظة بلحظة' , roles: ['ADMIN', 'SUPERVISOR'] });
 let groups = [], gatherings = [], selected = null, locations = [], rituals = [], trips = [];
 
 if (shell) init(shell);

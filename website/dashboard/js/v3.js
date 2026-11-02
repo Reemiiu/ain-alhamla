@@ -66,8 +66,8 @@ export function bindScenario(root, after) {
 export async function runChecks(quiet) {
   try {
     const [s, h] = await Promise.all([rpc('app_smart_tick'), rpc('app_health_tick')]);
-    const n = s.buddy_split_alerts + s.heat_alerts + h.missed_doses + h.escalated_checks;
-    if (!quiet || n) toast(n ? `الفحص الذكي: ${s.buddy_split_alerts} انفصال رفاق · ${s.heat_alerts} إجهاد حراري · ${h.missed_doses} جرعة فائتة · ${h.escalated_checks} بلا رد` : 'الفحص الذكي: لا تنبيهات جديدة', n ? 'warn' : 'info');
+    const n = s.buddy_split_alerts + (s.circle_split_alerts ?? 0) + s.heat_alerts + h.missed_doses + h.escalated_checks;
+    if (!quiet || n) toast(n ? `الفحص الذكي: ${s.buddy_split_alerts} انفصال رفاق · ${s.circle_split_alerts ?? 0} ابتعاد عن العائلة · ${s.heat_alerts} إجهاد حراري · ${h.missed_doses} جرعة فائتة · ${h.escalated_checks} بلا رد` : 'الفحص الذكي: لا تنبيهات جديدة', n ? 'warn' : 'info');
   } catch (e) { toast(esc(e.message), 'danger'); }
 }
 

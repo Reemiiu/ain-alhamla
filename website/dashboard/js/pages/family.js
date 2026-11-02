@@ -4,7 +4,7 @@ import { renderShell, isAdmin } from '../shell.js';
 import { esc, timeAgo, dateTime, toast, openModal } from '../ui.js';
 import { LANGS } from '../v3.js';
 
-const shell = renderShell({ page: 'family.html', title: 'الأهل والرسائل', subtitle: 'روابط طمأنينة للأهل، ورسائل المشرف مترجمة لكل حاج' });
+const shell = renderShell({ page: 'family.html', title: 'الأهل والرسائل', subtitle: 'روابط طمأنينة للأهل، ورسائل المشرف مترجمة لكل حاج' , roles: ['ADMIN', 'SUPERVISOR'] });
 let board = { groups: [], pilgrims: [] }, voiceLang = {};
 
 if (shell) init(shell);

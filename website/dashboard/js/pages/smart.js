@@ -1,4 +1,4 @@
-// المتابعة الذكية: مؤشر خطر الضياع، الرفاق، الإجهاد الحراري، نبض الحشود، وجاهزية الحافلة — كلها من القاعدة الحية.
+// المتابعة الذكية: مؤشر خطر الضياع، الرفاق، دوائر «عائلتي ورفقتي» (v4.5)، الإجهاد الحراري، نبض الحشود، وجاهزية الحافلة — كلها من القاعدة الحية.
 import { supabase, rpc } from '../api.js';
 import { renderShell, onTick, isAdmin } from '../shell.js';
 import { esc, timeAgo, battery, clock, toast } from '../ui.js';
@@ -15,11 +15,14 @@ async function init({ content, user }) {
     <div class="stat-row" id="kpis"></div>
     <div class="row">
       <div class="card" style="flex:1.6"><div class="card-head"><h2>مؤشر خطر الضياع</h2>
-        <span class="meta">البعد عن الفوج ٣٥ + آخر ظهور ٢٥ + البطارية ١٥ + العمر ١٠ + الحالة الصحية ١٠ + بعد الرفيق ٥</span></div>
+        <span class="meta">البعد عن الفوج ٣٥ + آخر ظهور ٢٥ + البطارية ١٥ + العمر ١٠ + الحالة الصحية ١٠ + بعد الرفيق أو الرفقة ٥</span></div>
         <div style="overflow-x:auto"><table class="db-table"><thead><tr><th>الحاج</th><th>المؤشر</th><th>عن الفوج</th><th>آخر ظهور</th><th>البطارية</th><th></th></tr></thead>
         <tbody id="risk"><tr><td colspan="6"><div class="loading-state">جارٍ التحميل...</div></td></tr></tbody></table></div></div>
       <div class="card" style="flex:1"><div class="card-head"><h2>نظام الرفيق</h2><span class="meta">تنبيه للاثنين عند تجاوز الحد</span></div><div id="buddies"></div></div>
     </div>
+    <div class="card"><div class="card-head"><h2>عائلتي ورفقتي · دوائر الحجاج</h2>
+      <span class="meta">يكوّنها الحجاج بأنفسهم برمز من التطبيق، وقد تجمع أفراداً من أفواج مختلفة · ⭐ = من أفواجك</span></div>
+      <div id="circles"></div></div>
     <div class="row">
       <div class="card"><div class="card-head"><h2>الإجهاد الحراري</h2><select class="field sm-field" id="heatLoc"></select></div><div id="heat"></div></div>
       <div class="card"><div class="card-head"><h2>نبض الحشود · الجمرات</h2><span class="meta">شخص لكل م²</span></div><div id="crowd"></div></div>
@@ -46,7 +49,7 @@ async function init({ content, user }) {
 }
 
 async function load() {
-  await Promise.allSettled([loadRisk(), loadBuddies(), loadHeat(), loadCrowd(), loadBus()]);
+  await Promise.allSettled([loadRisk(), loadBuddies(), loadCircles(), loadHeat(), loadCrowd(), loadBus()]);
 }
 
 async function loadRisk() {
@@ -71,6 +74,21 @@ async function loadBuddies() {
   document.getElementById('buddies').innerHTML = rows.map((b) => `
     <div class="contact-row"><div style="flex:1"><b>${esc(b.a_name)}</b> ⇄ <b>${esc(b.b_name)}</b><div class="meta">الحد ${b.max_distance_m} م</div></div>
       ${distPill(b.distance_m, b.max_distance_m, 500)}</div>`).join('') || '<div class="empty-state">لم يُربط أي رفيقين بعد.</div>';
+}
+
+// v4.5: كل دائرة مع أفرادها، والمسافة بين كل فرد وأقرب فرد له من دائرته
+async function loadCircles() {
+  const rows = await rpc('app_circles_overview');
+  document.getElementById('circles').innerHTML = rows.map((c) => `
+    <div class="contact-row" style="align-items:flex-start">
+      <div style="flex:1;min-width:220px"><b>${esc(c.name)}</b> <span class="meta">· ${c.member_count} أفراد · الحد ${meters(c.max_distance_m)}</span>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${c.members.map((m) => `
+          <span class="pill ${m.nearest_m == null ? 'muted' : m.nearest_m > c.max_distance_m ? 'crit' : 'good'}" title="${esc(m.group_name ?? '')}">
+            ${m.mine ? '⭐ ' : ''}${esc(m.name)}${m.is_owner ? ' (المنشئ)' : ''} · ${m.nearest_m == null ? 'لا موقع' : meters(m.nearest_m)}
+          </span>`).join('')}</div>
+        <div class="meta" style="margin-top:4px">${[...new Set(c.members.map((m) => m.group_name).filter(Boolean))].map(esc).join(' + ')}</div></div>
+      ${c.split ? `<span class="pill crit">متفرّقة · ${meters(c.spread_m)}</span>` : `<span class="pill good">مجتمعة</span>`}
+    </div>`).join('') || '<div class="empty-state">لم يكوّن أي حاج دائرة بعد. من التطبيق: الرئيسية ← «عائلتي ورفقتي».</div>';
 }
 
 async function loadHeat() {

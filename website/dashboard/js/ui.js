@@ -58,7 +58,7 @@ export function prioPill(level, reason) {
 export const ALERT_TYPE = {
   SOS: 'طلب نجدة SOS', LOST: 'حاج تائه', ABSENCE: 'غياب', DELAY: 'تأخر عن المهلة',
   GEOFENCE_BREACH: 'خروج عن النطاق', LOW_BATTERY: 'بطارية منخفضة',
-  HEAT_STRESS: 'إجهاد حراري', BUDDY_SPLIT: 'انفصال عن الرفيق', OUTSIDE_SITE: 'خارج حدود المشعر',
+  HEAT_STRESS: 'إجهاد حراري', BUDDY_SPLIT: 'انفصال عن الرفيق أو العائلة', OUTSIDE_SITE: 'خارج حدود المشعر',
   MISSED_DOSE: 'جرعة دواء فائتة', NO_MOVEMENT: 'لا حركة · أنت بخير؟',
 };
 export const SEVERITY = { CRITICAL: 'حرجة', MEDIUM: 'متوسطة', LOW: 'منخفضة' };

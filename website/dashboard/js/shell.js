@@ -43,9 +43,19 @@ const NAV = {
     ['health.html', 'الصحة', I.heart], ['family.html', 'الأهل والرسائل', I.family], ['ops.html', 'التشغيل', I.clip],
   ],
 };
-NAV.OPERATIONS_CENTER = NAV.ADMIN;
+// مركز العمليات: متابعة لحظية واستجابة للطوارئ على مستوى الحملة كلها — بلا صفحات الإدارة والتقييم
+// (لا سجل شغل ولا تعليقات ولا تقارير مناسك ولا إدارة مجموعات أو تجمعات أو تنقلات أو روابط أهل)
+NAV.OPERATIONS_CENTER = [
+  ['index.html', 'لوحة العمليات', I.home], ['alerts.html', 'الاستجابة للتنبيهات', I.alert, 'navAlerts'],
+  ['map.html', 'الخريطة الحية', I.map],
+  ['sep', 'المتابعة الميدانية'],
+  ['smart.html', 'المتابعة الذكية', I.spark], ['bounds.html', 'حدود المشاعر', I.flag],
+  ['health.html', 'الصحة', I.heart], ['pilgrims.html', 'ملفات الحجاج', I.people],
+  ['sep', 'التواصل والتشغيل'],
+  ['messages.html', 'الرسائل الجماعية', I.msg], ['ops.html', 'المفقودات والتشغيل', I.clip],
+];
 
-export const INTERFACE_NAME = { ADMIN: 'واجهة الإدارة', OPERATIONS_CENTER: 'واجهة الإدارة · مركز العمليات', SUPERVISOR: 'واجهة المشرف' };
+export const INTERFACE_NAME = { ADMIN: 'واجهة الإدارة', OPERATIONS_CENTER: 'واجهة مركز العمليات', SUPERVISOR: 'واجهة المشرف' };
 export const ROLE_LABEL = { ADMIN: 'الإدارة', OPERATIONS_CENTER: 'مركز العمليات', SUPERVISOR: 'مشرف ميداني' };
 
 let tickHandlers = [];
@@ -142,8 +152,8 @@ async function tick() {
     if (r.escalated > 0) toast(`تصعيد: ${r.escalated} بلاغ بدون استجابة`, 'danger');
     Promise.allSettled([rpc('app_smart_tick'), rpc('app_health_tick')]).then(([sm, he]) => {
       const a = sm.value ?? {}, b = he.value ?? {};
-      const n = (a.buddy_split_alerts ?? 0) + (a.heat_alerts ?? 0) + (b.missed_doses ?? 0) + (b.escalated_checks ?? 0);
-      if (n) toast(`فحص ذكي: ${n} تنبيه جديد (رفاق/حر/جرعات/أنت بخير؟)`, 'warn');
+      const n = (a.buddy_split_alerts ?? 0) + (a.circle_split_alerts ?? 0) + (a.heat_alerts ?? 0) + (b.missed_doses ?? 0) + (b.escalated_checks ?? 0);
+      if (n) toast(`فحص ذكي: ${n} تنبيه جديد (رفاق/عوائل/حر/جرعات/أنت بخير؟)`, 'warn');
     });
     refreshAlertBadge();
     for (const fn of tickHandlers) fn();
